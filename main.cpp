@@ -9,7 +9,7 @@ size_t N = 256;
 
 int main()
 {
-	// --------------------------------------- ЗАДАНИЕ 1 ---------------------------------------
+	// --------------------------------------- TASK 1 ---------------------------------------
 
 	std::cout << "---------- TASK 1 ----------" << std::endl;
 	std::cout << "SIZE = " << SIZE << std::endl;
@@ -72,7 +72,7 @@ int main()
 
 	task1_opencl(data_a_cpu_cl, data_b_cpu_cl, result_cpu_cl, SIZE, start_cpu_cl, end_cpu_cl, CL_DEVICE_TYPE_CPU); //  OPENCL CPU
 
-	// ------------------------------------- Результаты -------------------------------------
+	// ------------------------------------- Results -------------------------------------
 
 	std::cout << std::endl;
 	std::cout << "CPU RESULTS" << std::endl;
@@ -84,7 +84,7 @@ int main()
 	std::cout << "OPENMP RESULTS" << std::endl;
 	printMatrix(result_omp, n);
 
-	// -------------------------- Сравнение результатов (CPU & GPU) --------------------------
+	// -------------------------- Results comparison (CPU & GPU) --------------------------
 
 	if(checkResults(result, result_cpu, n * n))
 	{
@@ -95,14 +95,14 @@ int main()
 		std::cout << "Results (CPU & GPU) are different." << std::endl;
 	}
 
-	// --------------------------------- Вывод времени работы ---------------------------------
+	// --------------------------------- Time ---------------------------------
 
 	std::cout << "OPENCL GPU time = " << (cl_double)(end - start) * (cl_double)(1e-06) << " ms" << std::endl;  
 	std::cout << "OPENCL CPU time = " << (cl_double)(end_cpu_cl - start_cpu_cl) * (cl_double)(1e-06) << " ms" << std::endl; 
 	std::cout << "CPU time = " << (float)(finish_cpu - start_cpu) << " ms" << std::endl; 
 	std::cout << "OMP time = " << (finish_omp - start_omp) * (1e+03) << " ms" << std::endl;
 
-	// --------------------------------------- ЗАДАНИЕ 2 ---------------------------------------
+	// --------------------------------------- TASK 2 ---------------------------------------
 	//
 	// matrix A [ M * N ]
 	// matrix B [ N * K ]
@@ -185,7 +185,7 @@ int main()
 	matrixMultiOMP(A_omp, B_omp, C_omp, K, M, N, threadsNum); //  OPENMP
 	double finish_omp2 = omp_get_wtime();
 
-	// ------------------------------------- Результаты -------------------------------------
+	// ------------------------------------- Results -------------------------------------
 
 	std::cout << "CPU RESULTS" << std::endl;
 	printMatrix(C, M, K);
@@ -196,37 +196,46 @@ int main()
 	std::cout << "OPENMP RESULTS" << std::endl;
 	printMatrix(C_omp, M, K);
 
-	// -------------------------- Сравнение результатов (CPU & GPU) --------------------------
+	// -------------------------- Results comparison (CPU & GPU) --------------------------
 
 	if(checkResults(C, C_gpu, M * K))
 	{
-		std::cout << "Results (CPU & GPU) are equal." << std::endl;
+		std::cout << "results (cpu & gpu) are equal." << std::endl;
 	}
 	else
 	{
-		std::cout << "Results (CPU & GPU) are different." << std::endl;
+		std::cout << "results (cpu & gpu) are different." << std::endl;
 	}
 
-	// --------------------------------- Вывод времени работы ---------------------------------
+	// --------------------------------- Time ---------------------------------
 
 	std::cout << "OPENCL GPU time = " << (cl_double)(end2 - start2) * (cl_double)(1e-06) << " ms" << std::endl; 
 	std::cout << "OPENCL CPU time = " << (cl_double)(end_cpu_cl2 - start_cpu_cl2) * (cl_double)(1e-06) << " ms" << std::endl; 
 	std::cout << "CPU time = " << (float)(finish_cpu2 - start_cpu2) << " ms" << std::endl; 
 	std::cout << "OMP time = " << (finish_omp2 - start_omp2) * (1e+03) << " ms" << std::endl;
 
-	// --------------------------------------- ЗАДАНИЕ 2 ---------------------------------------
+	// --------------------------------------- TASK 2 ---------------------------------------
 	// Buffer ---> Image
 
 	std::cout << "---------- TASK 3 ----------" << std::endl;
 
 	cl_ulong start3 = 0, end3 = 0;
 
-	task3_opencl(A_img_gpu, B_img_gpu, C_img_gpu, K, M, N, start3, end3, CL_DEVICE_TYPE_GPU); // calculation errors
+	task3_opencl(A_img_gpu, B_img_gpu, C_img_gpu, K, M, N, start3, end3, CL_DEVICE_TYPE_GPU);
 
 	std::cout << "IMAGE OPENCL GPU RESULTS" << std::endl;
 	printMatrix(C_img_gpu, M, K);
 
-	// -------------------------- Сравнение результатов (CPU & GPU) --------------------------
+	// -------------------------- Results comparison (CPU & GPU) --------------------------
+
+	if(checkResults(C_gpu, C_img_gpu, M * K))
+	{
+		std::cout << "Results (Image & GPU) are equal." << std::endl;
+	}
+	else
+	{
+		std::cout << "Results (Image & GPU) are different." << std::endl;
+	}
 
 	std::cout << "IMAGE OPENCL GPU time = " << (cl_double)(end3 - start3) * (cl_double)(1e-06) << " ms" << std::endl;
 

@@ -47,29 +47,29 @@ const char* matrixMultipleGPU_Optim =
 const char* matrixMultiImg =
 "kernel void multi_img(__read_only image2d_t a,                    \n"
 "__read_only image2d_t b, __write_only image2d_t c) {              \n"
-"  int row = get_local_id(0);                                      \n"
-"  int col = get_local_id(1);                                      \n"
+"  const int row = get_local_id(0);                                \n"
+"  const int col = get_local_id(1);                                \n"
 "  const int globalRow = BLOCK_SIZE * get_group_id(0) + row;       \n"
 "  const int globalCol = BLOCK_SIZE * get_group_id(1) + col;       \n"
 "  int n = get_global_size(0);                                     \n"
-"  local float4 Asub[BLOCK_SIZE][BLOCK_SIZE];                      \n"
-"  local float4 Bsub[BLOCK_SIZE][BLOCK_SIZE];                      \n"
-"  float4 acc = 0.0f;                                              \n"
+"  local float Asub[BLOCK_SIZE][BLOCK_SIZE];                       \n"
+"  local float Bsub[BLOCK_SIZE][BLOCK_SIZE];                       \n"
+"  float acc = 0.0f;                                               \n"
 "  const int numTiles = n / BLOCK_SIZE;                            \n"
 "  for (int t = 0; t < numTiles; t++) {                            \n"
 "    const int tiledRow = BLOCK_SIZE * t + row;                    \n"
 "    const int tiledCol = BLOCK_SIZE * t + col;                    \n"
-"    const int2 idA = (tiledCol, globalRow);                       \n"
-"    const int2 idB = (globalCol, tiledRow);                       \n"
-"    Asub[col][row] = read_imagef(a, idA);                         \n"
-"    Bsub[col][row] = read_imagef(b, idB);                         \n"
+"    const int2 idA = {tiledCol, globalRow};                       \n"
+"    const int2 idB = {globalCol, tiledRow};                       \n"
+"    Asub[col][row] = read_imagef(a, idA).x;                       \n"
+"    Bsub[col][row] = read_imagef(b, idB).x;                       \n"
 "    barrier(CLK_LOCAL_MEM_FENCE);                                 \n"
 "    for (int i = 0; i < BLOCK_SIZE; i++) {                        \n"
 "      acc += Asub[i][row] * Bsub[col][i];                         \n"
 "     }                                                            \n"
 "    barrier(CLK_LOCAL_MEM_FENCE);                                 \n"
 "  }                                                               \n"
-"  const int2 idC = (globalCol, globalRow);                        \n"
+"  const int2 idC = {globalCol, globalRow};                        \n"
 "  write_imagef(c, idC, acc);                                      \n"
 "}                                                                 \n";
 
@@ -880,7 +880,6 @@ void task3_opencl(float* data_a, float* data_b, float* result, size_t K, size_t 
 	}
 
 
-
 	size_t origin[3] = {0, 0, 0};
     size_t region[3] = {N, N, 1};
 
@@ -918,8 +917,6 @@ void task3_opencl(float* data_a, float* data_b, float* result, size_t K, size_t 
 		std::cout << "Enqueue write buffer data_b failed: " << error << std::endl;
 	}
 
-
-
 	error = clSetKernelArg (
 		kernel,
 		0,
@@ -949,14 +946,6 @@ void task3_opencl(float* data_a, float* data_b, float* result, size_t K, size_t 
 	if (error != CL_SUCCESS) {
 		std::cout << "Set kernel args for c failed: " << error << std::endl;
 	}
-
-	//clGetKernelWorkGroupInfo (
-	//	kernel,
-	//	device,
-	//	CL_KERNEL_WORK_GROUP_SIZE,
-	//	sizeof (size_t),
-	//	&group,
-	//	NULL );
 
 	cl_event evt;
 	auto start_gpu = std::chrono::steady_clock::now();
